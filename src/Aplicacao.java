@@ -40,12 +40,12 @@ public class Aplicacao {
         Map.Entry<Resultado, Long> placarMaisRepetido = brasileirao.getPlacarMaisRepetido();
 
         System.out.println("Estatisticas (Placar mais repetido) - "
-                + placarMaisRepetido.getKey() + " (" +placarMaisRepetido.getValue() + " jogo(s))");
+                + placarMaisRepetido.getKey() + " (" +placarMaisRepetido.getValue() + " jogo(s))"); //OK
 
         Map.Entry<Resultado, Long> placarMenosRepetido = brasileirao.getPlacarMenosRepetido();
 
         System.out.println("Estatisticas (Placar menos repetido) - "
-                + placarMenosRepetido.getKey() + " (" +placarMenosRepetido.getValue() + " jogo(s))");
+                + placarMenosRepetido.getKey() + " (" +placarMenosRepetido.getValue() + " jogo(s))"); //OK
 
         Long jogosCom3OuMaisGols = brasileirao.getTotalJogosCom3OuMaisGols(); // OK
         Long jogosComMenosDe3Gols = brasileirao.getTotalJogosComMenosDe3Gols(); // OK
