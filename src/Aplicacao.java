@@ -1,9 +1,7 @@
 import dominio.PosicaoTabela;
 import dominio.Resultado;
 import impl.CampeonatoBrasileiroImpl;
-
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.IntSummaryStatistics;
 import java.util.Map;
 import java.util.Scanner;
@@ -13,14 +11,11 @@ public class Aplicacao {
 
     public static void main(String[] args) throws IOException {
 
-        // obter caminho do arquivo
-        Path file = Path.of("campeonato-brasileiro.csv");
 
         // obter a implementação: (ponto extra - abstrair para interface)
         System.out.println("Digite o ano do Brasileirao a ser pesquisado: ");
         int ano = new Scanner(System.in).nextInt();
-        CampeonatoBrasileiroImpl resultados =
-                new CampeonatoBrasileiroImpl(file,ano);
+        CampeonatoBrasileiroImpl resultados = new CampeonatoBrasileiroImpl(ano);
 
         // imprimir estatisticas
         imprimirEstatisticas(resultados);

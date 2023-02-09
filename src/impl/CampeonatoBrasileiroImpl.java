@@ -15,11 +15,11 @@ import java.util.stream.Stream;
 
 public class CampeonatoBrasileiroImpl {
 
-    private Map<Integer, List<Jogo>> brasileirao;
+    private final Map<Integer, List<Jogo>> brasileirao;
     private final List<Jogo> jogos;
 
-    public CampeonatoBrasileiroImpl(Path arquivo, int ano) throws IOException {
-        this.jogos = lerArquivo(arquivo);
+    public CampeonatoBrasileiroImpl(int ano) throws IOException {
+        this.jogos = lerArquivo(Path.of("campeonato-brasileiro.csv"));
         Predicate<Jogo> filtro = (jogo) -> jogo.data().data().getYear() == ano;
         if(ano < 2020) {
             this.brasileirao = jogos.stream()
@@ -37,23 +37,7 @@ public class CampeonatoBrasileiroImpl {
         }
 
     }
-    public Map<Integer, List<Jogo>> getBrasileirao2021(){
-        return jogos.stream()
-                .filter((jogo) -> jogo.data().data().getYear() == 2021)
-                .collect(Collectors.groupingBy(
-                        Jogo::rodada,
-                        Collectors.mapping(Function.identity(), Collectors.toList())));
-    }
-    public void brasileirao2020ComSegundaParte(){
-        this.brasileirao = Stream.of(this.brasileirao, getBrasileirao2021())
-                .flatMap(map -> map.entrySet().stream())
-                .collect(Collectors.toMap(Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (value1, value2) -> {
-                            value1.addAll(value2);
-                            return value1;
-                        }));
-    }
+
     public Map<Integer, List<Jogo>> getBrasileirao() {
         return Collections.unmodifiableMap(brasileirao);
     }
@@ -69,15 +53,18 @@ public class CampeonatoBrasileiroImpl {
             while (line != null) {
                 line = br.readLine();
                 var lineSplit = line.split(";");
-                Integer rodada = Integer.valueOf(lineSplit[0]), mandantePlacar = Integer.valueOf(lineSplit[8]), visitantePlacar = Integer.valueOf(lineSplit[9]);
+
                 LocalDate localDate = LocalDate.parse(lineSplit[1], DateTimeFormatter.ofPattern("dd/MM/yyyy"));
                 var horaMin = lineSplit[2].contains("h") ? lineSplit[2].split("h") : lineSplit[2].split(":");
                 LocalTime localTime = LocalTime.parse(horaMin[0] + ":" + horaMin[1], DateTimeFormatter.ofPattern("HH:mm"));
                 DayOfWeek dayOfWeek = getDayOfWeek(lineSplit[3]);
                 DataDoJogo dataDoJogo = new DataDoJogo(localDate, localTime, dayOfWeek);
+
+                Integer rodada = Integer.valueOf(lineSplit[0]), mandantePlacar = Integer.valueOf(lineSplit[8]), visitantePlacar = Integer.valueOf(lineSplit[9]);
                 Time mandante = new Time(lineSplit[4]), visitante = new Time(lineSplit[5]), vencedor = new Time(lineSplit[6]);
                 String arena = lineSplit[7], estadoMandante = lineSplit[10], estadoVisitante = lineSplit[11], estadoVencedor = lineSplit[12];
                 new DataDoJogo(localDate, localTime, dayOfWeek);
+
                 Jogo jogo = new Jogo(rodada, dataDoJogo, mandante, visitante, vencedor, arena,
                         mandantePlacar, visitantePlacar, estadoMandante, estadoVisitante, estadoVencedor);
                 jogos.add(jogo);
@@ -90,11 +77,12 @@ public class CampeonatoBrasileiroImpl {
     }
 
     public IntSummaryStatistics getEstatisticasPorJogo() {
-        return getJogosPorAno().stream().mapToInt(Jogo::getGols).summaryStatistics();
+        return getJogosPorAno().stream().mapToInt(jogo-> jogo.visitantePlacar()+ jogo.mandantePlacar()).summaryStatistics();
     }
 
-    public Map<Jogo, Double> getMediaGolsPorJogo() { // MAP<JOGO, DOUBLE>
-        return getJogosPorAno().stream().collect(Collectors.toMap(Jogo::getJogo, Jogo::getMediaGolsPorJogo));
+    public Map<Jogo, Double> getMediaGolsPorJogo() {
+        return  getJogosPorAno().stream()
+                .collect(Collectors.toMap(jogo -> jogo, jogo -> (jogo.mandantePlacar() + jogo.visitantePlacar())/2.0D));
     }
 
 //    public IntSummaryStatistics GetEstatisticasPorJogo() {
@@ -128,7 +116,8 @@ public class CampeonatoBrasileiroImpl {
     }
 
     public Map<Resultado, Long> getTodosOsPlacares() {
-        return getJogosPorAno().stream().collect(Collectors.groupingBy(Jogo::getResultado, Collectors.counting()));
+        return getJogosPorAno().stream()
+                .collect(Collectors.groupingBy(jogo-> new Resultado(jogo.mandantePlacar(), jogo.visitantePlacar()), Collectors.counting()));
     }
 
     public Map.Entry<Resultado, Long> getPlacarMaisRepetido() {
@@ -173,7 +162,7 @@ public class CampeonatoBrasileiroImpl {
         return Collections.unmodifiableSet(criarTabela());
     }
     public Set<PosicaoTabela> criarTabela(){
-        var mapTabela = Stream.of(getPontosPorTime(), getVitoriasPorTime(), getDerrotasPorTime(),
+        var mapTabela = Stream.of(getVitoriasPorTime(), getDerrotasPorTime(),
                         getEmpatesPorTime(), getTotalDeGolsMarcadosPorTime(), getTotalDeGolsSofridosPorTime(), getSaldoDeGolsPorTime(),
                         getQuantidadeJogosPorTime()).flatMap(map -> map.entrySet().stream())
                         .collect(Collectors.toMap(Map.Entry::getKey,
@@ -182,10 +171,10 @@ public class CampeonatoBrasileiroImpl {
 
         return mapTabela.entrySet().stream().map(e-> new PosicaoTabela(e.getKey(), e.getValue().get(0),
                         e.getValue().get(1), e.getValue().get(2), e.getValue().get(3), e.getValue().get(4),
-                        e.getValue().get(5), e.getValue().get(6), e.getValue().get(7)))
-                .sorted(Comparator.comparing(PosicaoTabela::pontos).thenComparing(PosicaoTabela::vitorias).reversed())
+                        e.getValue().get(5), e.getValue().get(6)))
+                .sorted(Comparator.comparing(PosicaoTabela::pontos).thenComparing(PosicaoTabela::vitorias)
+                        .thenComparing(PosicaoTabela::saldoDeGols).thenComparing(PosicaoTabela::golsPositivos).reversed())
                 .collect(Collectors.toCollection(LinkedHashSet::new));
-
     }
 
     private DayOfWeek getDayOfWeek(String dia) {
@@ -211,16 +200,12 @@ public class CampeonatoBrasileiroImpl {
     }
 
     public Map<Time, Long> getDerrotaVisitante(){
-        return getJogosPorAno().stream()
-                .collect(Collectors.groupingBy(Jogo::visitante)).entrySet()
-                .stream().collect(Collectors.toMap(Map.Entry::getKey,
-                        e -> e.getValue().stream().filter(jogo -> jogo.vencedor().equals(jogo.mandante())).count()));
+        return getJogosPorAno().stream().filter(jogo -> jogo.vencedor().equals(jogo.mandante()))
+                .collect(Collectors.groupingBy(Jogo::visitante, Collectors.counting()));
     }
     public Map<Time, Long> getDerrotasMandante(){
-        return getJogosPorAno().stream()
-                .collect(Collectors.groupingBy(Jogo::mandante)).entrySet()
-                .stream().collect(Collectors.toMap(Map.Entry::getKey,
-                        e -> e.getValue().stream().filter(jogo -> jogo.vencedor().equals(jogo.visitante())).count()));
+        return getJogosPorAno().stream().filter(jogo -> jogo.vencedor().equals(jogo.visitante()))
+                .collect(Collectors.groupingBy(Jogo::mandante, Collectors.counting()));
     }
 
     public Map<Time, Long> getDerrotasPorTime(){
@@ -229,9 +214,9 @@ public class CampeonatoBrasileiroImpl {
     }
 
     public Map<Time, Long> getVitoriasPorTime() {
-        var map = getJogosPorAno().stream().collect(Collectors.groupingBy(Jogo::ganhador, Collectors.counting()));
-        map.remove(new Time("-"));
-        return map;
+        return getJogosPorAno().stream().filter(jogo-> !jogo.vencedor().equals(new Time("-")))
+                .collect(Collectors.groupingBy(Jogo::vencedor, Collectors.counting()));
+
 
     }
     public Map<Time, Long> getEmpatesPorTime(){
@@ -240,22 +225,18 @@ public class CampeonatoBrasileiroImpl {
     }
 
     public Map<Time, Long> getEmpatesMandante() {
-        return getJogosPorAno().stream()
-                .filter(jogo -> jogo.vencedor().equals(new Time("-")))
-                .collect(Collectors.groupingBy(Jogo::mandante)).entrySet()
-                .stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().stream().map(Jogo::empate).count()));
+        return getJogosPorAno().stream().filter(jogo -> jogo.vencedor().equals(new Time("-")))
+                .collect(Collectors.groupingBy(Jogo::mandante, Collectors.counting()));
     }
 
     public Map<Time, Long> getEmpatesVisitante() {
-        return getJogosPorAno().stream()
-                .filter(jogo -> jogo.vencedor().equals(new Time("-")))
-                        .collect(Collectors.groupingBy(Jogo::visitante)).entrySet()
-                .stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().stream().map(Jogo::empate).count()));
+        return  getJogosPorAno().stream().filter(jogo -> jogo.vencedor().equals(new Time("-")))
+                        .collect(Collectors.groupingBy(Jogo::visitante, Collectors.counting()));
     }
 
     public Map<Integer, Integer> getTotalGolsPorRodada() { // PRIVATE
         return getJogosPorAno().stream()
-                .collect(Collectors.toMap(Jogo::rodada, Jogo::getGols, Integer::sum));
+                .collect(Collectors.toMap(Jogo::rodada, jogo-> jogo.mandantePlacar()+jogo.visitantePlacar(), Integer::sum));
     }
 
     public Map<Time, Long> getTotalDeGolsMarcadosPorTime() { // PRIVATE
@@ -276,8 +257,9 @@ public class CampeonatoBrasileiroImpl {
 
     public Map<Integer, Double> getMediaDeGolsPorRodada() { // PRIVATE
         return getJogosPorAno().stream()
-                .collect(Collectors.toMap(Jogo::rodada, Jogo::getMediaGolsPorJogo, Double::sum))
-                .entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()/5.0));
+                .collect(Collectors.toMap(Jogo::rodada, jogo -> (jogo.mandantePlacar()+ jogo.visitantePlacar())/10.0, Double::sum));
+
+
     }
 
     public Map<Time, Long> getGolsMarcadosComoVisitante(){ //PRIVATE
@@ -299,5 +281,4 @@ public class CampeonatoBrasileiroImpl {
         return getTodosOsJogosPorTimeComoMandantes().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e-> e.getValue().stream().mapToLong(Jogo::visitantePlacar).sum()));
     }
-
 }
