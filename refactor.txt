@@ -1,0 +1,3 @@
+Leitura e escrita de csv
+refatorar streams
+refatorar aplicacao
