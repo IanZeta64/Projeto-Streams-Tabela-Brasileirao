@@ -1,7 +1,6 @@
 package dominio;
 
 public record PosicaoTabela(Time time,
-                            Long pontos,
                             Long vitorias,
                             Long derrotas,
                             Long empates,
