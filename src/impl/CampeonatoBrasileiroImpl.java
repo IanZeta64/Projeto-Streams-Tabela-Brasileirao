@@ -153,7 +153,7 @@ public class CampeonatoBrasileiroImpl{
         return Collections.unmodifiableSet(criarTabela());
     }
     public Set<PosicaoTabela> criarTabela(){
-        var mapTabela = Stream.of(getPontosPorTime(), getVitoriasPorTime(), getDerrotasPorTime(),
+        var mapTabela = Stream.of( getVitoriasPorTime(), getDerrotasPorTime(),
                         getEmpatesPorTime(), getTotalDeGolsMarcadosPorTime(), getTotalDeGolsSofridosPorTime(), getSaldoDeGolsPorTime(),
                         getQuantidadeJogosPorTime()).flatMap(map -> map.entrySet().stream())
                         .collect(Collectors.toMap(Map.Entry::getKey,
@@ -162,8 +162,8 @@ public class CampeonatoBrasileiroImpl{
 
         return mapTabela.entrySet().stream().map(e-> new PosicaoTabela(e.getKey(), e.getValue().get(0),
                         e.getValue().get(1), e.getValue().get(2), e.getValue().get(3), e.getValue().get(4),
-                        e.getValue().get(5), e.getValue().get(6), e.getValue().get(7)))
-                .sorted(Comparator.comparing(PosicaoTabela::pontos).thenComparing(PosicaoTabela::vitorias)
+                        e.getValue().get(5), e.getValue().get(6)))
+                .sorted(Comparator.comparing((PosicaoTabela p) -> ((p.vitorias()*3)+p.empates())).thenComparing(PosicaoTabela::vitorias)
                         .thenComparing(PosicaoTabela::saldoDeGols).thenComparing(PosicaoTabela::golsPositivos).reversed())
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
