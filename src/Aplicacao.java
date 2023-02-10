@@ -35,29 +35,29 @@ public class Aplicacao {
         Map.Entry<Resultado, Long> placarMaisRepetido = brasileirao.getPlacarMaisRepetido();
 
         System.out.println("Estatisticas (Placar mais repetido) - "
-                + placarMaisRepetido.getKey() + " (" +placarMaisRepetido.getValue() + " jogo(s))"); //OK
+                + placarMaisRepetido.getKey() + " (" +placarMaisRepetido.getValue() + " jogo(s))"); // - OK
 
         Map.Entry<Resultado, Long> placarMenosRepetido = brasileirao.getPlacarMenosRepetido();
 
         System.out.println("Estatisticas (Placar menos repetido) - "
-                + placarMenosRepetido.getKey() + " (" +placarMenosRepetido.getValue() + " jogo(s))"); //OK
+                + placarMenosRepetido.getKey() + " (" +placarMenosRepetido.getValue() + " jogo(s))"); // - OK
 
         Long jogosCom3OuMaisGols = brasileirao.getTotalJogosCom3OuMaisGols(); // OK
         Long jogosComMenosDe3Gols = brasileirao.getTotalJogosComMenosDe3Gols(); // OK
 
-        System.out.println("Estatisticas (3 ou mais gols) - " + jogosCom3OuMaisGols);// - OK
+        System.out.println("Estatisticas (3 ou mais gols) - " + jogosCom3OuMaisGols); // - OK
         System.out.println("Estatisticas (-3 gols) - " + jogosComMenosDe3Gols); // - OK
 
-        Long totalVitoriasEmCasa = brasileirao.getTotalVitoriasEmCasa(); // OK
-        Long vitoriasForaDeCasa = brasileirao.getTotalVitoriasForaDeCasa(); // OK
-        Long empates = brasileirao.getTotalEmpates(); // OK
+        Long totalVitoriasEmCasa = brasileirao.getTotalVitoriasEmCasa(); // - OK
+        Long vitoriasForaDeCasa = brasileirao.getTotalVitoriasForaDeCasa(); // - OK
+        Long empates = brasileirao.getTotalEmpates(); // - OK
 
-        System.out.println("Estatisticas (Vitorias Fora de casa) - " + vitoriasForaDeCasa);
-        System.out.println("Estatisticas (Vitorias Em casa) - " + totalVitoriasEmCasa);
-        System.out.println("Estatisticas (Empates) - " + empates);
+        System.out.println("Estatisticas (Vitorias Fora de casa) - " + vitoriasForaDeCasa);  // - OK
+        System.out.println("Estatisticas (Vitorias Em casa) - " + totalVitoriasEmCasa); // - OK
+        System.out.println("Estatisticas (Empates) - " + empates); // - OK
     }
 
-    public static void imprimirTabela(Set<PosicaoTabela> posicoes) {
+    public static void imprimirTabela(Set<PosicaoTabela> posicoes) { // - OK
         System.out.println();
         System.out.println("## TABELA CAMPEONADO BRASILEIRO: ##");
         int colocacao = 1;
@@ -65,7 +65,6 @@ public class Aplicacao {
             System.out.println(colocacao +". " + posicao);
             colocacao++;
         }
-
         System.out.println();
         System.out.println();
     }

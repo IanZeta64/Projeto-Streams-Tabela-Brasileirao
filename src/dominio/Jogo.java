@@ -16,9 +16,6 @@ public record Jogo(Integer rodada,
                    String estadoMandante,
                    String estadoVisitante,
                    String estadoVencedor){
-    public List<Time> getTimes(){
-       return List.of(mandante, visitante);
-    }
 
     @Override
     public String toString() {
