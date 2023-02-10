@@ -1,9 +1,7 @@
 package dominio;
 
-import java.util.Comparator;
-
 public record PosicaoTabela(Time time,
-
+                            Long pontos,
                             Long vitorias,
                             Long derrotas,
                             Long empates,
@@ -12,14 +10,11 @@ public record PosicaoTabela(Time time,
                             Long saldoDeGols,
                             Long jogos) {
 
-    public Long pontos() {
-        return vitorias()*3 + empates();
-    }
 
     @Override
     public String toString() {
         return  time +
-                ", pontos=" + ((vitorias*3) + empates)+ // desenvolver forma de obter a pontuação
+                ", pontos=" + ((vitorias*3)+empates)+
                 ", vitorias=" + vitorias +
                 ", derrotas=" + derrotas +
                 ", empates=" + empates +

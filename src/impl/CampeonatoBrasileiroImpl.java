@@ -2,6 +2,7 @@ package impl;
 
 import dominio.*;
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -13,7 +14,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CampeonatoBrasileiroImpl {
+public class CampeonatoBrasileiroImpl{
 
     private final Map<Integer, List<Jogo>> brasileirao;
     private final List<Jogo> jogos;
@@ -35,7 +36,6 @@ public class CampeonatoBrasileiroImpl {
                     .flatMap(map -> map.entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                     (value1, value2) -> {value1.addAll(value2);return value1;}));
         }
-
     }
 
     public Map<Integer, List<Jogo>> getBrasileirao() {
@@ -48,31 +48,24 @@ public class CampeonatoBrasileiroImpl {
 
     public List<Jogo> lerArquivo(Path file) throws IOException {
         List<Jogo> jogos = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(String.valueOf(file)))) {
-            String line = br.readLine();
-            while (line != null) {
-                line = br.readLine();
-                var lineSplit = line.split(";");
-
+        try {
+            jogos = Files.readAllLines(file).stream().skip(1).map(strings -> {
+                String[] lineSplit = strings.split(";");
+                LocalTime localTime = LocalTime.parse((lineSplit[2].equals("")) ? "00:00" : lineSplit[2].replace("h", ":"));
                 LocalDate localDate = LocalDate.parse(lineSplit[1], DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-                var horaMin = lineSplit[2].contains("h") ? lineSplit[2].split("h") : lineSplit[2].split(":");
-                LocalTime localTime = LocalTime.parse(horaMin[0] + ":" + horaMin[1], DateTimeFormatter.ofPattern("HH:mm"));
                 DayOfWeek dayOfWeek = getDayOfWeek(lineSplit[3]);
                 DataDoJogo dataDoJogo = new DataDoJogo(localDate, localTime, dayOfWeek);
 
                 Integer rodada = Integer.valueOf(lineSplit[0]), mandantePlacar = Integer.valueOf(lineSplit[8]), visitantePlacar = Integer.valueOf(lineSplit[9]);
                 Time mandante = new Time(lineSplit[4]), visitante = new Time(lineSplit[5]), vencedor = new Time(lineSplit[6]);
                 String arena = lineSplit[7], estadoMandante = lineSplit[10], estadoVisitante = lineSplit[11], estadoVencedor = lineSplit[12];
-                new DataDoJogo(localDate, localTime, dayOfWeek);
 
-                Jogo jogo = new Jogo(rodada, dataDoJogo, mandante, visitante, vencedor, arena,
+                return new Jogo(rodada, dataDoJogo, mandante, visitante, vencedor, arena,
                         mandantePlacar, visitantePlacar, estadoMandante, estadoVisitante, estadoVencedor);
-                jogos.add(jogo);
-            }
-
-        } catch (IOException e) { //TRATAR EXCESSAO NULL
+            }).toList();
+        }catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
-        } catch (NullPointerException ignored) {}
+        }
         return jogos;
     }
 
@@ -84,11 +77,6 @@ public class CampeonatoBrasileiroImpl {
         return  getJogosPorAno().stream()
                 .collect(Collectors.toMap(jogo -> jogo, jogo -> (jogo.mandantePlacar() + jogo.visitantePlacar())/2.0D));
     }
-
-//    public IntSummaryStatistics GetEstatisticasPorJogo() {
-//        return null;
-//    }
-
 
     public Long getTotalVitoriasEmCasa() {
         return getJogosPorAno().stream().filter(jogo -> jogo.mandantePlacar() > jogo.visitantePlacar())
@@ -129,7 +117,7 @@ public class CampeonatoBrasileiroImpl {
     }
 
     public List<Time> getTodosOsTimes() { //PRIVATE
-        return getJogosPorAno().stream().map(Jogo::getTimes).limit(10).flatMap(Collection::stream).toList();
+        return getJogosPorAno().stream().map(Jogo::mandante).collect(Collectors.toSet()).stream().toList();
     }
 
     public Map<Time, List<Jogo>> getTodosOsJogosPorTimeComoMandantes() { //PRIVATE
@@ -149,9 +137,12 @@ public class CampeonatoBrasileiroImpl {
                         (value1, value2) -> {value1.addAll(value2); return value1;}));
     }
 
-//    public Map<Time, Map<Boolean, List<Jogo>>> getJogosParticionadosPorMandanteTrueVisitanteFalse() {
-//        return null;
-//    }
+    public Map<Time, Map<Boolean, List<Jogo>>> getJogosParticionadosPorMandanteTrueVisitanteFalse() {
+        return getTodosOsJogosPorTime().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e->e.getValue().stream()
+                        .collect(Collectors.partitioningBy(x-> x.mandante().equals(e.getKey())))));
+
+    }
 
     public Map<Time, Long> getQuantidadeJogosPorTime() {
         return getTodosOsJogosPorTime().entrySet().stream()
@@ -162,7 +153,7 @@ public class CampeonatoBrasileiroImpl {
         return Collections.unmodifiableSet(criarTabela());
     }
     public Set<PosicaoTabela> criarTabela(){
-        var mapTabela = Stream.of(getVitoriasPorTime(), getDerrotasPorTime(),
+        var mapTabela = Stream.of(getPontosPorTime(), getVitoriasPorTime(), getDerrotasPorTime(),
                         getEmpatesPorTime(), getTotalDeGolsMarcadosPorTime(), getTotalDeGolsSofridosPorTime(), getSaldoDeGolsPorTime(),
                         getQuantidadeJogosPorTime()).flatMap(map -> map.entrySet().stream())
                         .collect(Collectors.toMap(Map.Entry::getKey,
@@ -171,11 +162,12 @@ public class CampeonatoBrasileiroImpl {
 
         return mapTabela.entrySet().stream().map(e-> new PosicaoTabela(e.getKey(), e.getValue().get(0),
                         e.getValue().get(1), e.getValue().get(2), e.getValue().get(3), e.getValue().get(4),
-                        e.getValue().get(5), e.getValue().get(6)))
+                        e.getValue().get(5), e.getValue().get(6), e.getValue().get(7)))
                 .sorted(Comparator.comparing(PosicaoTabela::pontos).thenComparing(PosicaoTabela::vitorias)
                         .thenComparing(PosicaoTabela::saldoDeGols).thenComparing(PosicaoTabela::golsPositivos).reversed())
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
+
 
     private DayOfWeek getDayOfWeek(String dia) {
         DayOfWeek dayOfWeekValues;
@@ -196,7 +188,6 @@ public class CampeonatoBrasileiroImpl {
                 e-> e.getValue()*3)), getEmpatesPorTime()).flatMap(map -> map.entrySet().stream())
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         Map.Entry::getValue, Long::sum));
-
     }
 
     public Map<Time, Long> getDerrotaVisitante(){
@@ -281,4 +272,5 @@ public class CampeonatoBrasileiroImpl {
         return getTodosOsJogosPorTimeComoMandantes().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e-> e.getValue().stream().mapToLong(Jogo::visitantePlacar).sum()));
     }
+
 }

@@ -5,21 +5,20 @@ import java.nio.file.Path;
 
 public class MainTestes {
     public static void main(String[] args) throws IOException {
-        Path file = Path.of("campeonato-brasileiro.csv");
         CampeonatoBrasileiroImpl cb = new CampeonatoBrasileiroImpl(2017);
 //        System.out.println( cb.getTotalVitoriasEmCasa());
 //        System.out.println(cb.getTotalVitoriasForaDeCasa());
 //        System.out.println(cb.getTotalEmpates());
 //        System.out.println(cb.getTotalJogosCom3OuMaisGols());
 //        System.out.println(cb.getTotalJogosComMenosDe3Gols());
-//        System.out.println(cb.getTodosOsTimes());
+        System.out.println(cb.getTodosOsTimes());
 //        System.out.println(cb.getJogosPorAno());
 //        System.out.println(cb.getTodosOsPlacares());
 //        System.out.println(cb.getPlacarMenosRepetido());
 //        System.out.println(cb.getPlacarMaisRepetido());
-        System.out.println(cb.getTotalGolsPorRodada());
-        System.out.println(cb.getMediaDeGolsPorRodada());
-        System.out.println(cb.getMediaGolsPorJogo());
+//        System.out.println(cb.getTotalGolsPorRodada());
+//        System.out.println(cb.getMediaDeGolsPorRodada());
+//        System.out.println(cb.getMediaGolsPorJogo());
 //        System.out.println(cb.getVitoriasPorTime());
 //        System.out.println(cb.getTodosOsJogosPorTimeComoMandantes());
 //        System.out.println(cb.getTodosOsJogosPorTimeComoVisitante());
@@ -39,6 +38,7 @@ public class MainTestes {
 //        System.out.println(cb.getJogos());
 //        System.out.println(cb.getSaldoDeGolsPorTime());
 //        System.out.println(cb.criarTabela());
+//        System.out.println(cb.getJogosParticionadosPorMandanteTrueVisitanteFalse());
 
 
     }
