@@ -1,5 +1,6 @@
 import dominio.PosicaoTabela;
 import dominio.Resultado;
+import impl.Brasileirao;
 import impl.CampeonatoBrasileiroImpl;
 import java.io.IOException;
 import java.util.IntSummaryStatistics;
@@ -12,10 +13,10 @@ public class Aplicacao {
     public static void main(String[] args) throws IOException {
 
 
-        // obter a implementação: (ponto extra - abstrair para interface)
+        //obter a implementação: (ponto extra - abstrair para interface)
         System.out.println("Digite o ano do Brasileirao a ser pesquisado: ");
         int ano = new Scanner(System.in).nextInt();
-        CampeonatoBrasileiroImpl resultados = new CampeonatoBrasileiroImpl(ano);
+        Brasileirao resultados = new CampeonatoBrasileiroImpl(ano);
 
         // imprimir estatisticas
         imprimirEstatisticas(resultados);
@@ -25,7 +26,7 @@ public class Aplicacao {
 
     }
 
-    private static void imprimirEstatisticas(CampeonatoBrasileiroImpl brasileirao) {
+    private static void imprimirEstatisticas(Brasileirao brasileirao) {
         IntSummaryStatistics statistics = brasileirao.getEstatisticasPorJogo();
 
         System.out.println("Estatisticas (Total de gols) - " + statistics.getSum()); // -OK
