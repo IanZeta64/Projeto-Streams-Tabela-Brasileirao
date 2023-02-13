@@ -66,6 +66,7 @@ public class Aplicacao {
         System.out.println("┌─────┬─────────────────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐");
         System.out.println(String.format("│ %2s │ %-15s │ %3s │ %3s │ %3s │ %3s │ %3s │ %3s │ %3s │ %-2s │", "POS",
                 "TIME", "PTS", "VIT", "DER","EMP","GP","GC","SG", "JGS"));
+        System.out.println("├─────┼─────────────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┤");
         for (PosicaoTabela posicao : posicoes) {
             System.out.println(String.format("│ %2s", colocacao) +"° " + posicao);
             colocacao++;
