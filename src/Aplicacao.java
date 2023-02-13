@@ -79,7 +79,7 @@ public class Aplicacao {
         System.out.println("## TABELA CAMPEONADO BRASILEIRO: ##");
         int colocacao = 1;
         for (PosicaoTabela posicao : posicoes) {
-            System.out.println(colocacao +". " + posicao);
+            System.out.println(String.format("%2s", colocacao) +". " + posicao);
             colocacao++;
         }
         System.out.println();

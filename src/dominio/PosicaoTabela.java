@@ -13,7 +13,7 @@ public record PosicaoTabela(Time time,
     @Override
     public String toString() {
         return  String.format("| %-15s | %-3s | %-3s | %-3s | %-3s | %-3s | %-3s | %-3s | %-2s |",
-                time, ((vitorias*3)+empates), vitorias, derrotas, empates, golsPositivos, golsSofridos, saldoDeGols, jogos);
+                time, (vitorias*3+empates), vitorias, derrotas, empates, golsPositivos, golsSofridos, saldoDeGols, jogos);
     }
 }
 
