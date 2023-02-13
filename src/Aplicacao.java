@@ -3,43 +3,26 @@ import dominio.Resultado;
 import impl.Brasileirao;
 import impl.CampeonatoBrasileiroImpl;
 import java.io.IOException;
-import java.util.IntSummaryStatistics;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 public class Aplicacao {
 
     public static void main(String[] args) throws IOException {
 
-    int resposta;
-    do {
-        int ano;
+        boolean continuar;
         do {
-            System.out.println("Digite o ano do Brasileirão a ser pesquisado: ");
-            ano = new Scanner(System.in).nextInt();
-            if (ano < 2003 || ano > 2020) {
-                System.out.println("Ano digitado inválido. Por favor, digite novamente.");
-            }
-        } while (ano < 2003 || ano > 2020);
+            int ano = getAno();
 
-        //obter a implementação: (ponto extra - abstrair para interface)
-        Brasileirao resultados = new CampeonatoBrasileiroImpl(ano);
+            Brasileirao resultados = new CampeonatoBrasileiroImpl(ano);
+            System.out.printf("%15s .::BRASILEIRÃO %d::. %15s %n","", ano, "");
+            System.out.printf( "%38s %n%n","──────────────────────");
 
-        // imprimir estatisticas
-        imprimirEstatisticas(resultados);
+            imprimirEstatisticas(resultados);
 
-        // imprimir tabela ordenada
-        imprimirTabela(resultados.getTabela());
-        do {
-            System.out.println("Deseja continuar pesquisando?\n1-Sim\n2-Não");
-            resposta = new Scanner(System.in).nextInt();
-            if (resposta < 1 || resposta > 2) {
-                System.out.println("Resposta digitada inválido. Por favor, digite novamente.");
-            }
-        }while(resposta < 1 || resposta > 2);
+            imprimirTabela(resultados.getTabela());
 
-    }while(resposta == 1);
+            continuar = getResposta();
+        }while(continuar);
     }
 
     private static void imprimirEstatisticas(Brasileirao brasileirao) {
@@ -78,11 +61,48 @@ public class Aplicacao {
         System.out.println();
         System.out.println("## TABELA CAMPEONADO BRASILEIRO: ##");
         int colocacao = 1;
+
+        System.out.println("┌─────┬─────────────────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬────┐");
         for (PosicaoTabela posicao : posicoes) {
-            System.out.println(String.format("%2s", colocacao) +". " + posicao);
+            System.out.println(String.format("│ %2s", colocacao) +"° " + posicao);
             colocacao++;
         }
+        System.out.println("└─────┴─────────────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴────┘");
+
         System.out.println();
         System.out.println();
+    }
+
+    private static boolean getResposta() {
+        boolean continuar;
+        int resposta;
+        do {
+            System.out.println("Deseja continuar pesquisando?\n1-Sim\n2-Não");
+            try{
+                resposta = new Scanner(System.in).nextInt();
+            }catch (InputMismatchException | NumberFormatException e) {
+                System.err.println("Erro: " + e);
+                resposta = 0;
+            }
+            if (resposta < 1 || resposta > 2) {
+                System.out.println("Resposta digitada inválido. Por favor, digite novamente.");
+            }
+            continuar = resposta == 1;
+        }while(resposta < 1 || resposta > 2);
+        return continuar;
+    }
+
+    private static int getAno() {
+        int ano = 0;
+        do{
+            System.out.println("Digite o ano do brasileirao a ser pesquiado: ");
+            try {
+                ano = new Scanner(System.in).nextInt();
+            }catch (InputMismatchException | NumberFormatException e){
+                System.err.println("Erro: " + e);
+            }
+            if (ano < 2003 || ano > 2020) System.out.println("Valor digitado inválido. Digite um valor valido.");
+        } while (ano < 2003 || ano > 2020);
+        return ano;
     }
 }
