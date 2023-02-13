@@ -6,6 +6,7 @@ import java.nio.file.Path;
 public class MainTestes {
     public static void main(String[] args) throws IOException {
         CampeonatoBrasileiroImpl cb = new CampeonatoBrasileiroImpl(2003);
+<<<<<<< Updated upstream
 //        System.out.println( cb.getTotalVitoriasEmCasa());
 //        System.out.println(cb.getTotalVitoriasForaDeCasa());
 //        System.out.println(cb.getTotalEmpates());
@@ -60,3 +61,20 @@ public class MainTestes {
 //        2;20/05/2007;18h10;Domingo;Náutico;São Paulo;Náutico;Aflitos;1;0;PE;SP;PE
 //        2;20/05/2007;16h00;Domingo;Palmeiras;Figueirense;Palmeiras;Parque Antártica;2;1;SP;SC;SP
 //        2;20/05/2007;18h10;Domingo;Vasco;Sport;Vasco;São Januário;3;1;RJ;PE;RJ
+=======
+        //METODOS NAO IMPLEMENTADOS
+        System.out.println("'MAINTESTES' FEITO COM ANO 2003\n");
+        System.out.println("Todos os times:");
+        cb.getTodosOsTimes().forEach(System.out::println);
+        System.out.println("\nTotal gols por rodada:");
+        System.out.println(cb.getTotalGolsPorRodada());
+        System.out.println("\nMedia de Gols por rodada:");
+        System.out.println(cb.getMediaDeGolsPorRodada());
+        System.out.println("\nMedia de gols por jogo:");
+        System.out.println(cb.getMediaGolsPorJogo());
+        System.out.println("\nJogos particionados por visitante false/mandante true:");
+        cb.getJogosParticionadosPorMandanteTrueVisitanteFalse().entrySet().forEach(System.out::println);
+
+    }
+}
+>>>>>>> Stashed changes
