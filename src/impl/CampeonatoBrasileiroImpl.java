@@ -17,8 +17,10 @@ import java.util.stream.Stream;
 public class CampeonatoBrasileiroImpl implements Brasileirao{
 
     private final Map<Integer, List<Jogo>> brasileirao;
+    private final int ano;
 
     public CampeonatoBrasileiroImpl(int ano) throws IOException {
+        this.ano = ano;
         List<Jogo> jogos = lerArquivo(Path.of("campeonato-brasileiro.csv"));
         Predicate<Jogo> filtro = (ano < 2020) ? (jogo) -> jogo.data().data().getYear() == ano : (jogo) -> (jogo.data().data().getYear() >= 2020);
             this.brasileirao = jogos.stream()
