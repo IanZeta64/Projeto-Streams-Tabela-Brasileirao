@@ -17,10 +17,8 @@ import java.util.stream.Stream;
 public class CampeonatoBrasileiroImpl implements Brasileirao{
 
     private final Map<Integer, List<Jogo>> brasileirao;
-    private final int ano;
 
     public CampeonatoBrasileiroImpl(int ano) throws IOException {
-        this.ano = ano;
         List<Jogo> jogos = lerArquivo(Path.of("campeonato-brasileiro.csv"));
         Predicate<Jogo> filtro = (ano < 2020) ? (jogo) -> jogo.data().data().getYear() == ano : (jogo) -> (jogo.data().data().getYear() >= 2020);
             this.brasileirao = jogos.stream()
@@ -38,9 +36,9 @@ public class CampeonatoBrasileiroImpl implements Brasileirao{
                 LocalDate localDate = LocalDate.parse(lineSplit[1], DateTimeFormatter.ofPattern("dd/MM/yyyy"));
                 DayOfWeek dayOfWeek = getDayOfWeek(lineSplit[3]);
                 DataDoJogo dataDoJogo = new DataDoJogo(localDate, localTime, dayOfWeek);
-                if (dataDoJogo.equals(new DataDoJogo(LocalDate.of(2007,05,17), LocalTime.of(18, 10),
+                if (dataDoJogo.equals(new DataDoJogo(LocalDate.of(2007,5,17), LocalTime.of(18, 10),
                         DayOfWeek.SATURDAY))) {
-                    dataDoJogo = new DataDoJogo(LocalDate.of(2008,05,17), LocalTime.of(18, 10),
+                    dataDoJogo = new DataDoJogo(LocalDate.of(2008,5,17), LocalTime.of(18, 10),
                             DayOfWeek.SATURDAY);
                 }
 
@@ -239,32 +237,28 @@ public class CampeonatoBrasileiroImpl implements Brasileirao{
                 .collect(Collectors.toMap(Map.Entry::getKey, e-> e.getValue().stream().mapToLong(Jogo::visitantePlacar).sum()));
     }
 
-    private Map<Jogo, Double> getMediaGolsPorJogo() { //PRIVATE
-        return  getJogosPorAno().stream()
-                .collect(Collectors.toMap(jogo -> jogo, jogo -> (jogo.mandantePlacar() + jogo.visitantePlacar())/2.0D));
-    }
+        //METODOS ANTIGOS NAO IMPLEMENTADOS - TESTADOS NA MAINTESTES
 
-    private List<Time> getTodosOsTimes() { //PRIVATE
+    public List<Time> getTodosOsTimes() { //PRIVATE - professor
         return getJogosPorAno().stream().map(Jogo::mandante).collect(Collectors.toSet()).stream().toList();
     }
-    private Map<Time, Map<Boolean, List<Jogo>>> getJogosParticionadosPorMandanteTrueVisitanteFalse() {
+    public Map<Time, Map<Boolean, List<Jogo>>> getJogosParticionadosPorMandanteTrueVisitanteFalse() { // - professor
         return getTodosOsJogosPorTime().entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e->e.getValue().stream()
-                        .collect(Collectors.partitioningBy(x-> x.mandante().equals(e.getKey())))));
+               .collect(Collectors.toMap(Map.Entry::getKey, e->e.getValue().stream()
+               .collect(Collectors.partitioningBy(x-> x.mandante().equals(e.getKey())))));
 
     }
-    private Map<Time, Long> getPontosPorTime(){ // PRIVATE
-        return Stream.of(getVitoriasPorTime().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
-                        e-> e.getValue()*3)), getEmpatesPorTime()).flatMap(map -> map.entrySet().stream())
-                .collect(Collectors.toMap(Map.Entry::getKey,
-                        Map.Entry::getValue, Long::sum));
-    }
-    private Map<Integer, Integer> getTotalGolsPorRodada() { // PRIVATE
+    public Map<Integer, Integer> getTotalGolsPorRodada() { // PRIVATE - professor
         return getJogosPorAno().stream()
                 .collect(Collectors.toMap(Jogo::rodada, jogo-> jogo.mandantePlacar()+jogo.visitantePlacar(), Integer::sum));
     }
-    private Map<Integer, Double> getMediaDeGolsPorRodada() { // PRIVATE
+    public Map<Integer, Double> getMediaDeGolsPorRodada() { // PRIVATE - professor
         return getJogosPorAno().stream()
                 .collect(Collectors.toMap(Jogo::rodada, jogo -> (jogo.mandantePlacar()+ jogo.visitantePlacar())/10.0, Double::sum));
+    }
+
+    public Map<Jogo, Double> getMediaGolsPorJogo() { //PRIVATE - professor
+        return  getJogosPorAno().stream()
+                .collect(Collectors.toMap(jogo -> jogo, jogo -> (jogo.mandantePlacar() + jogo.visitantePlacar())/2.0D));
     }
 }
